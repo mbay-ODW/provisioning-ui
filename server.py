@@ -4,6 +4,7 @@ from flask import Flask, flash, request, redirect, render_template, send_file
 import logging
 import subprocess
 import time
+import pexpect
 
 
 #logFile = './Logs/registration.log'
@@ -22,6 +23,17 @@ def configuration(deviceID,tenantURL,username,password):
         createCertification = subprocess.Popen(["tedge", "cert", "create", "--device-id", deviceID],stdout=subprocess.PIPE)
         createCertification.wait()
         logging.debug('Received the following feedback from certification create: %s' % (createCertification.stdout.read()))
+
+        uploadCertification = pexpect.spawn('tedge cert upload c8y --user' + username)
+        uploadExpect = uploadCertification.expect('Enter password:')
+        if uploadExpect == 0:
+            uploadCertification.sendline(password)
+            uploadResult = uploadCertification.expect(['Certificate uploaded successfully.', 'Certificate already exists in the cloud.'])
+            if uploadResult == 0:
+                logging.debug('Received the following feedback from certification upload: %s' % ('Certificate uploaded successfully.'))
+            elif uploadResult == 1:
+                logging.debug('Received the following feedback from certification upload: %s' % ('Certificate already exists in the cloud.'))
+
         logging.debug('Starting config set of tenant url creation via subprocess')
         tenantConfig = subprocess.Popen(["tedge", "config", "set", "c8y.url", tenantURL],stdout=subprocess.PIPE)
         tenantConfig.wait()
