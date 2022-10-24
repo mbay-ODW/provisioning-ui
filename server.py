@@ -33,6 +33,8 @@ def configuration(deviceID,tenantURL,username,password):
                 logging.debug('Received the following feedback from certification upload: %s' % ('Certificate uploaded successfully.'))
             elif uploadResult == 1:
                 logging.debug('Received the following feedback from certification upload: %s' % ('Certificate already exists in the cloud.'))
+        if uploadCertification.isalive():
+            uploadCertification.close()
 
         logging.debug('Starting config set of tenant url creation via subprocess')
         tenantConfig = subprocess.Popen(["tedge", "config", "set", "c8y.url", tenantURL],stdout=subprocess.PIPE)
