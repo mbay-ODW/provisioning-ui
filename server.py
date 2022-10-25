@@ -24,7 +24,7 @@ def configuration(deviceID,tenantURL,username,password):
         createCertification.wait()
         logging.debug('Received the following feedback from certification create: %s' % (createCertification.stdout.read()))
 
-        uploadCertification = pexpect.spawn('tedge cert upload c8y --user' + username)
+        uploadCertification = pexpect.spawn('tedge cert upload c8y --user ' + username)
         uploadExpect = uploadCertification.expect('Enter password:')
         if uploadExpect == 0:
             uploadCertification.sendline(password)
